@@ -1,7 +1,6 @@
 const express = require('express');
-const moment = require('moment');
 const bodyParser = require('body-parser');
-const Usuario = require('./models/Usuario');
+const usuarioRouter = require('./routes/Usuario');
 
 const app = express();
 const PORT = 3001;
@@ -16,17 +15,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.post('/enviar-dados', async (req, res) => {
-    try {
-      const data = req.body;
-
-      data.dataNascimento = moment(data.dataNascimento, 'DD/MM/YYYY').format('YYYY-MM-DD');
-      
-      const usuario = await Usuario.create(data);
-      res.send('Dados cadastrados com sucesso!');
-    } catch (error) {
-      res.status(500).send('Erro ao cadastrar dados');
-    }
-});
+app.use('/usuario', usuarioRouter);
 
 app.listen(PORT, async () => console.log(`Servidor rodando na porta ${PORT}`));
