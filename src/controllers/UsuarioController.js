@@ -1,5 +1,6 @@
 const Usuario = require("../models/Usuario"); 
 const moment = require('moment');
+const bcrypt = require('bcrypt');
 
 class UsuarioController {
     async index(req, res, next){
@@ -14,7 +15,18 @@ class UsuarioController {
     async create(req, res, next) {
         try {
             const data = req.body;
+
+            console.log(data)
+            const validUser = await Usuario.findOne({usuario: data.usuario});
+            if(validUser) return res.status(400).json({ error: 'Nome de usuário já está em uso!' });
+
             data.dataNascimento = moment(data.dataNascimento, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            const passwordHash = await bcrypt.hash(data.senha, 10);
+            data.senha = passwordHash;
+
+            const confirmPasswordHash = await bcrypt.hash(data.confirmarSenha, 10);
+            data.confirmarSenha = confirmPasswordHash;
+
             const usuario = await Usuario.create(data);
             return res.json(usuario);
         } catch(e){
